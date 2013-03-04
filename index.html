@@ -84,10 +84,18 @@
           var flip = 0;
           var x = canvas.width, y = canvas.height;
 
+          var piIndex = tick/Math.PI;
+          var alternateColor = "rgb(" +
+            Math.round(127.5 + Math.sin(piIndex * 0.01) * 127.5) + "," +
+            Math.round(127.5 + Math.sin(piIndex * 0.05) * 127.5) + "," +
+            Math.round(127.5 + Math.sin(piIndex * 0.07) * 127.5) + ")";
+
+console.log(alternateColor);
+
           for(var i = 0; i < steps; i+=1){
             ctx.save();
             transformFunction(flip, i);
-            ctx.fillStyle = flip ? '#000' : '#ffb'
+            ctx.fillStyle = flip ? '#000' : alternateColor;
             ctx.fillRect(-x / 2, -y / 2, x, y);
             x = x - xDelta;
             y = y - yDelta;
