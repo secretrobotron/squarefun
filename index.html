@@ -1,0 +1,122 @@
+<html>
+  <head>
+    <title>bffff</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #000;
+        width: 100%;
+        height: 100%;
+      }
+
+      canvas {
+        display: block;
+        margin: 0 auto;
+        width: 700px;
+        height: 700px;
+      }
+
+      form {
+        background: #ccc;
+        padding: 5px;
+      }
+
+      form * {
+        margin: 2px 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <form><select></select><input type="range"></form>
+    <canvas width="700" height="700"></canvas>
+    <script>
+      (function(){
+
+        var requestAnimFrame = (function(){
+          return  window.requestAnimationFrame       ||
+                  window.webkitRequestAnimationFrame ||
+                  window.mozRequestAnimationFrame    ||
+                  window.oRequestAnimationFrame      ||
+                  window.msRequestAnimationFrame     ||
+                  function( callback ){
+                    window.setTimeout(callback, 1000 / 60);
+                  };
+        })();
+
+        var canvas = document.querySelector('canvas');
+
+        var width = canvas.width;
+        var height = canvas.height;
+        var steps = 30;
+        var xDelta = width / steps;
+        var yDelta = height / steps;
+        var speed = 0.001;
+        var ctx = canvas.getContext('2d');
+
+        var transformFunctions = {
+          'Normal': function(flip, i){
+            ctx.rotate(speed * i * tick);
+          },
+          'Toggle': function(flip, i){
+            ctx.rotate((1-flip) * speed * i * tick);
+          },
+          'Alternating': function(flip, i){
+            ctx.rotate((flip ? -1 : 1) * speed * i * tick);
+          }
+        };
+
+        var transformFunction = transformFunctions['Normal'];
+
+        ctx.translate(width/2, height/2);
+
+        var tick = 0;
+        function render(){
+          var flip = 0;
+          var x = canvas.width, y = canvas.height;
+
+          for(var i = 0; i < steps; i+=1){
+            ctx.save();
+            transformFunction(flip, i);
+            ctx.fillStyle = flip ? '#000' : '#ffb'
+            ctx.fillRect(-x / 2, -y / 2, x, y);
+            x = x - xDelta;
+            y = y - yDelta;
+            flip = 1 - flip;
+            ctx.restore();
+          }
+          
+          ++tick;
+
+          requestAnimFrame(render);
+        }
+
+        var transformSelect = document.querySelector('select');
+        Object.keys(transformFunctions).forEach(function(key){
+          var option = document.createElement('option');
+          option.value = key;
+          option.innerHTML = key;
+          transformSelect.appendChild(option);
+        });
+
+        transformSelect.onchange = function(e){
+          transformFunction = transformFunctions[transformSelect.value];
+        };
+
+        var range = document.querySelector('input[type="range"]');
+        var adjustSpeed = range.onchange = function(e){
+          speed = 0.001 * range.value;
+        };
+
+        range.min = 1;
+        range.max = 5;
+        range.step = 0.0005;
+        range.value = range.min;
+
+        adjustSpeed();
+
+        render();
+      }());
+    </script>
+  </body>
+</html>
